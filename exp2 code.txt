@@ -1,0 +1,73 @@
+import pandas as pd
+import matplotlib.pyplot as plt
+
+# Training dataset
+data = [
+    ['Sunny', 'Warm', 'Normal', 'Strong', 'Warm', 'Same', 'Yes'],
+    ['Sunny', 'Warm', 'High', 'Strong', 'Warm', 'Same', 'Yes'],
+    ['Rainy', 'Cold', 'High', 'Strong', 'Warm', 'Change', 'No'],
+    ['Sunny', 'Warm', 'High', 'Strong', 'Cool', 'Change', 'Yes']
+]
+
+attributes = ['Sky', 'AirTemp', 'Humidity',
+              'Wind', 'Water', 'Forecast']
+
+df = pd.DataFrame(data, columns=attributes + ['EnjoySport'])
+print("Training Dataset:")
+display(df)
+
+# Initialize boundaries
+S = ['Ø'] * len(attributes)
+G = [['?'] * len(attributes)]
+
+history = []
+
+for _, row in df.iterrows():
+    x = row[attributes].tolist()
+    target = row['EnjoySport']
+
+    if target == 'Yes':
+        G = [g for g in G if all(
+            g[i] == '?' or g[i] == x[i] for i in range(len(x))
+        )]
+
+        for i in range(len(x)):
+            if S[i] == 'Ø':
+                S[i] = x[i]
+            elif S[i] != x[i]:
+                S[i] = '?'
+
+    else:
+        new_G = []
+        for g in G:
+            if all(g[i] == '?' or g[i] == x[i]
+                   for i in range(len(x))):
+                for i in range(len(x)):
+                    if S[i] != '?' and S[i] != 'Ø' and S[i] != x[i]:
+                        h = g.copy()
+                        h[i] = S[i]
+                        new_G.append(h)
+            else:
+                new_G.append(g)
+
+        G = new_G
+
+    history.append(sum(v == '?' for v in S))
+
+print("\nFinal Specific Boundary S:")
+print(S)
+
+print("\nFinal General Boundary G:")
+for g in G:
+    print(g)
+
+# Graph: number of generalized attributes in S
+plt.figure(figsize=(7, 4))
+plt.plot(range(1, len(history) + 1), history,
+         marker='o', linewidth=2)
+plt.xlabel("Training Example Number")
+plt.ylabel("Number of Generalized Attributes (?)")
+plt.title("Candidate-Elimination Algorithm")
+plt.xticks(range(1, len(history) + 1))
+plt.grid(True)
+plt.show()

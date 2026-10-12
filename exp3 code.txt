@@ -1,0 +1,81 @@
+import pandas as pd
+import matplotlib.pyplot as plt
+from sklearn.tree import DecisionTreeClassifier, plot_tree
+from sklearn.preprocessing import LabelEncoder
+
+# Dataset
+data = {
+    'Outlook': ['Sunny', 'Sunny', 'Overcast', 'Rain',
+                'Rain', 'Rain', 'Overcast', 'Sunny',
+                'Sunny', 'Rain', 'Sunny', 'Overcast',
+                'Overcast', 'Rain'],
+    'Temperature': ['Hot', 'Hot', 'Hot', 'Mild',
+                    'Cool', 'Cool', 'Cool', 'Mild',
+                    'Cool', 'Mild', 'Mild', 'Mild',
+                    'Hot', 'Mild'],
+    'Humidity': ['High', 'High', 'High', 'High',
+                 'Normal', 'Normal', 'Normal', 'High',
+                 'Normal', 'Normal', 'Normal', 'High',
+                 'Normal', 'High'],
+    'Wind': ['Weak', 'Strong', 'Weak', 'Weak',
+             'Weak', 'Strong', 'Strong', 'Weak',
+             'Weak', 'Weak', 'Strong', 'Strong',
+             'Weak', 'Strong'],
+    'Play': ['No', 'No', 'Yes', 'Yes', 'Yes', 'No',
+             'Yes', 'No', 'Yes', 'Yes', 'Yes', 'Yes',
+             'Yes', 'No']
+}
+
+df = pd.DataFrame(data)
+print("Dataset:")
+display(df)
+
+# Encode categorical values
+encoders = {}
+X = df.drop('Play', axis=1).copy()
+
+for col in X.columns:
+    encoders[col] = LabelEncoder()
+    X[col] = encoders[col].fit_transform(X[col])
+
+y_encoder = LabelEncoder()
+y = y_encoder.fit_transform(df['Play'])
+
+# ID3-style decision tree: entropy + information gain
+model = DecisionTreeClassifier(criterion='entropy', random_state=0)
+model.fit(X, y)
+
+# Display decision tree
+plt.figure(figsize=(16, 8))
+plot_tree(model, feature_names=X.columns,
+          class_names=y_encoder.classes_,
+          filled=True, rounded=True)
+plt.title("Decision Tree using ID3 (Entropy)")
+plt.show()
+
+# Classify a new sample
+sample = {
+    'Outlook': 'Sunny',
+    'Temperature': 'Cool',
+    'Humidity': 'Normal',
+    'Wind': 'Weak'
+}
+
+sample_df = pd.DataFrame([sample])
+
+for col in sample_df.columns:
+    sample_df[col] = encoders[col].transform(sample_df[col])
+
+prediction = model.predict(sample_df)
+print("New Sample:", sample)
+print("Predicted Class:", y_encoder.inverse_transform(prediction)[0])
+
+# Graph: feature importance
+plt.figure(figsize=(7, 4))
+plt.bar(X.columns, model.feature_importances_)
+plt.xlabel("Features")
+plt.ylabel("Importance")
+plt.title("Decision Tree Feature Importance")
+plt.xticks(rotation=20)
+plt.grid(axis='y')
+plt.show()

@@ -1,0 +1,52 @@
+import matplotlib.pyplot as plt
+
+# Training data
+data = [
+    ['Sunny', 'Warm', 'Normal', 'Strong', 'Warm', 'Same', 'Yes'],
+    ['Sunny', 'Warm', 'High', 'Strong', 'Warm', 'Same', 'Yes'],
+    ['Rainy', 'Cold', 'High', 'Strong', 'Warm', 'Change', 'No'],
+    ['Sunny', 'Warm', 'High', 'Strong', 'Cool', 'Change', 'Yes']
+]
+
+attributes = ['Sky', 'Temperature', 'Humidity',
+              'Wind', 'Water', 'Forecast']
+
+# FIND-S algorithm
+hypothesis = ['0'] * len(attributes)
+history = []
+
+for row in data:
+    if row[-1] == 'Yes':       # Consider only positive examples
+        for i in range(len(attributes)):
+            if hypothesis[i] == '0':
+                hypothesis[i] = row[i]
+            elif hypothesis[i] != row[i]:
+                hypothesis[i] = '?'
+
+        history.append(hypothesis.copy())
+
+print("Final Most Specific Hypothesis:")
+print(hypothesis)
+
+# Convert hypothesis into numerical values for graph
+values = []
+for h in history:
+    values.append([
+        1 if x == '0' else 2 if x == '?' else 3
+        for x in h
+    ])
+
+# Plot
+plt.figure(figsize=(10, 6))
+
+for i, h in enumerate(values):
+    plt.plot(attributes, h, marker='o', label=f'Positive Example {i+1}')
+
+plt.yticks([1, 2, 3], ['0', '?', 'Specific Value'])
+plt.xlabel("Attributes")
+plt.ylabel("Hypothesis Value")
+plt.title("FIND-S Algorithm – Hypothesis Evolution")
+plt.legend()
+plt.grid(True)
+
+plt.show()
