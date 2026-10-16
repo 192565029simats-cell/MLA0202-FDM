@@ -1,0 +1,59 @@
+
+import matplotlib.pyplot as plt
+import seaborn as sns
+
+from sklearn.datasets import load_iris
+from sklearn.model_selection import train_test_split
+from sklearn.naive_bayes import GaussianNB
+from sklearn.metrics import accuracy_score, confusion_matrix, classification_report
+
+# Load dataset
+data = load_iris()
+X = data.data
+y = data.target
+
+# Split dataset into training and testing data
+X_train, X_test, y_train, y_test = train_test_split(
+    X, y, test_size=0.2, random_state=42, stratify=y
+)
+
+# Create and train Naive Bayes model
+model = GaussianNB()
+model.fit(X_train, y_train)
+
+# Predict test data
+y_pred = model.predict(X_test)
+
+# Calculate accuracy
+accuracy = accuracy_score(y_test, y_pred)
+print("Naive Bayes Classification")
+print("Accuracy:", round(accuracy * 100, 2), "%")
+
+# Display classification report
+print("\nClassification Report:")
+print(classification_report(y_test, y_pred,
+                            target_names=data.target_names))
+
+# Confusion matrix
+cm = confusion_matrix(y_test, y_pred)
+
+plt.figure(figsize=(7, 5))
+sns.heatmap(
+    cm, annot=True, fmt='d', cmap='Blues',
+    xticklabels=data.target_names,
+    yticklabels=data.target_names
+)
+
+plt.title("Naive Bayes - Confusion Matrix")
+plt.xlabel("Predicted Class")
+plt.ylabel("Actual Class")
+plt.show()
+
+# Accuracy graph
+plt.figure(figsize=(6, 4))
+plt.bar(["Naive Bayes"], [accuracy * 100])
+plt.ylabel("Accuracy (%)")
+plt.title("Naive Bayes Classification Accuracy")
+plt.ylim(0, 100)
+plt.grid(axis='y')
+plt.show()
