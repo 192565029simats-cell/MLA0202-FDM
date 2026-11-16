@@ -1,0 +1,47 @@
+import matplotlib.pyplot as plt
+from sklearn.datasets import load_iris
+from sklearn.model_selection import train_test_split
+from sklearn.neighbors import KNeighborsClassifier
+from sklearn.metrics import accuracy_score
+from sklearn.decomposition import PCA
+
+# Load dataset
+data = load_iris()
+X = data.data
+y = data.target
+
+# Split dataset
+X_train, X_test, y_train, y_test = train_test_split(
+    X, y, test_size=0.2, random_state=42, stratify=y
+)
+
+# KNN model
+model = KNeighborsClassifier(n_neighbors=5)
+model.fit(X_train, y_train)
+
+# Prediction
+y_pred = model.predict(X_test)
+
+print("Iris Flower Classification using KNN")
+print("Accuracy:", accuracy_score(y_test, y_pred) * 100, "%")
+
+# Reduce dimensions for graph
+pca = PCA(n_components=2)
+X_2d = pca.fit_transform(X)
+
+# Plot graph
+plt.figure(figsize=(8, 5))
+
+for i, name in enumerate(data.target_names):
+    plt.scatter(
+        X_2d[y == i, 0],
+        X_2d[y == i, 1],
+        label=name
+    )
+
+plt.xlabel("Principal Component 1")
+plt.ylabel("Principal Component 2")
+plt.title("Iris Flower Classification using KNN")
+plt.legend()
+plt.grid()
+plt.show()

@@ -1,0 +1,38 @@
+import numpy as np
+import matplotlib.pyplot as plt
+from sklearn.ensemble import RandomForestClassifier
+from sklearn.model_selection import train_test_split
+from sklearn.metrics import accuracy_score, ConfusionMatrixDisplay
+
+# Generate sample data
+np.random.seed(42)
+X = np.random.randint(18, 100, (200, 4))
+y = np.where(X[:, 0] + X[:, 1] + X[:, 2] + X[:, 3] > 220, 1, 0)
+
+# Split data
+X_train, X_test, y_train, y_test = train_test_split(
+    X, y, test_size=0.2, random_state=42
+)
+
+# Train model
+model = RandomForestClassifier(random_state=42)
+model.fit(X_train, y_train)
+
+# Prediction
+y_pred = model.predict(X_test)
+
+print("Credit Score Classification")
+print("Accuracy:", accuracy_score(y_test, y_pred) * 100, "%")
+
+# Confusion matrix
+ConfusionMatrixDisplay.from_predictions(y_test, y_pred)
+plt.title("Credit Score Confusion Matrix")
+plt.show()
+
+# Prediction graph
+plt.figure(figsize=(7, 4))
+plt.bar(["Low Score", "High Score"],
+        [sum(y_pred == 0), sum(y_pred == 1)])
+plt.title("Credit Score Classification")
+plt.ylabel("Number of Customers")
+plt.show()
